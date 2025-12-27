@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>Dokumen Bengkel</title></head>
+<body>
+    <h1>📚 Dokumen Bengkel</h1>
+    <p>Selamat datang, peserta diklat.</p>
+    <a href="/logout">Logout</a>
+
+    {% for kategori, files in catalog.items() %}
+        <h2>{{ kategori }}</h2>
+        <ul>
+        {% for f in files %}
+            <li>
+                {{ f.name }} ({{ f.size_mb }} MB)
+                <a href="https://drive.google.com/uc?export=download&id={{ f.file_id }}" target="_blank">📥</a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+</body>
+</html>

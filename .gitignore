@@ -1,0 +1,12 @@
+# Environment
+venv/
+.env
+credentials.json
+
+# Database
+database/users.db
+
+# Cache
+__pycache__/
+*.pyc
+*.pyo

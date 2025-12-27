@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Buat Batch Baru</title></head>
+<body>
+    <h1>➕ Buat Batch Diklat Baru</h1>
+    <a href="/admin/dashboard">← Kembali</a>
+    
+    <form method="POST" action="/admin/batch/buat">
+        <label>Nama Batch:</label><br>
+        <input name="nama" placeholder="Contoh: Diklat STN 2025 - Batch 3" required><br><br>
+        
+        <label>Link Grup WhatsApp:</label><br>
+        <input name="whatsapp_link" placeholder="https://chat.whatsapp.com/..." required><br><br>
+        
+        <label>
+            <input type="checkbox" name="akses_workshop"> Beri akses workshop otomatis ke peserta baru?
+        </label><br><br>
+        
+        <button type="submit">Buat Batch</button>
+    </form>
+</body>
+</html>

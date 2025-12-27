@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head><title>Kelola Peserta</title></head>
+<body>
+    <h1>👥 Kelola Peserta</h1>
+    <a href="/admin/dashboard">← Kembali</a>
+    
+    <div style="margin: 20px 0;">
+        Filter: 
+        <a href="/admin/peserta?status=semua">Semua</a> | 
+        <a href="/admin/peserta?status=belum">Belum Bayar</a> | 
+        <a href="/admin/peserta?status=lunas">Lunas</a>
+    </div>
+
+    <table border="1" style="width:100%; border-collapse: collapse;">
+        <tr>
+            <th>Nama</th>
+            <th>WA</th>
+            <th>Batch</th>
+            <th>Pembayaran</th>
+            <th>Akses Workshop</th>
+            <th>Aksi</th>
+        </tr>
+        {% for p in peserta %}
+        <tr>
+            <td>{{ p.nama }}</td>
+            <td>{{ p.whatsapp }}</td>
+            <td>{{ p.batch }}</td>
+            <td>{{ p.status_pembayaran }}</td>
+            <td>
+                {% if p.akses_workshop %}
+                    ✅ Ya
+                {% else %}
+                    ❌ Tidak
+                {% endif %}
+            </td>
+            <td>
+                <form method="POST" action="/admin/peserta/{{ p.id }}/toggle-akses" style="display:inline;">
+                    <button type="submit">
+                        {% if p.akses_workshop %}Cabut Akses{% else %}Berikan Akses{% endif %}
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
