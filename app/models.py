@@ -51,3 +51,17 @@ class Admin(db.Model):
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+class Jadwal(db.Model):
+    __tablename__ = 'jadwal'
+    id = db.Column(db.Integer, primary_key=True)
+    batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'), nullable=False)
+    batch = db.relationship('Batch', backref='jadwal_list')
+    hari = db.Column(db.String(20), nullable=False)  # Senin, Selasa, etc
+    waktu_mulai = db.Column(db.String(10), nullable=False)  # HH:MM format
+    waktu_selesai = db.Column(db.String(10), nullable=False)  # HH:MM format
+    topik = db.Column(db.String(255), nullable=False)
+    sesi = db.Column(db.String(50), nullable=True)  # Sesi 1, Sesi 2, etc
+    keterangan = db.Column(db.Text, nullable=True)
+    tanggal_dibuat = db.Column(db.DateTime, default=datetime.utcnow)
+    tanggal_diubah = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

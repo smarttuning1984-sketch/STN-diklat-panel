@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ form_title }} - Jadwal Diklat</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f7fa; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        header { background: #1a3a6c; color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        header h1 { margin-bottom: 5px; }
+        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: bold; color: #2c3e50; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 5px rgba(42, 82, 152, 0.2);
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .btn-submit { background: #2a5298; color: white; width: 100%; }
+        .btn-submit:hover { background: #1a3a6c; }
+        .btn-cancel { background: #999; color: white; }
+        .btn-group { display: flex; gap: 10px; }
+        .back { margin-top: 20px; }
+        .back a { color: #2a5298; text-decoration: none; }
+        .back a:hover { text-decoration: underline; }
+        .alert { background: #fff3cd; color: #856404; padding: 12px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ffc107; }
+        .info { font-size: 12px; color: #666; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ form_title }}</h1>
+            <p>Buat atau edit jadwal diklat untuk batch</p>
+        </header>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert">⚠️ {{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-container">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="batch_id">Pilih Batch *</label>
+                    <select id="batch_id" name="batch_id" required>
+                        <option value="">-- Pilih Batch --</option>
+                        {% for batch in batches %}
+                            <option value="{{ batch.id }}" {% if jadwal and jadwal.batch_id == batch.id %}selected{% endif %}>
+                                {{ batch.nama }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="info">Pilih batch yang akan diberikan jadwal</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hari">Hari *</label>
+                        <select id="hari" name="hari" required>
+                            <option value="">-- Pilih Hari --</option>
+                            <option value="Senin" {% if jadwal and jadwal.hari == 'Senin' %}selected{% endif %}>Senin</option>
+                            <option value="Selasa" {% if jadwal and jadwal.hari == 'Selasa' %}selected{% endif %}>Selasa</option>
+                            <option value="Rabu" {% if jadwal and jadwal.hari == 'Rabu' %}selected{% endif %}>Rabu</option>
+                            <option value="Kamis" {% if jadwal and jadwal.hari == 'Kamis' %}selected{% endif %}>Kamis</option>
+                            <option value="Jumat" {% if jadwal and jadwal.hari == 'Jumat' %}selected{% endif %}>Jumat</option>
+                            <option value="Sabtu" {% if jadwal and jadwal.hari == 'Sabtu' %}selected{% endif %}>Sabtu</option>
+                            <option value="Minggu" {% if jadwal and jadwal.hari == 'Minggu' %}selected{% endif %}>Minggu</option>
+                        </select>
+                    </div>
+                    <div></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="waktu_mulai">Waktu Mulai (HH:MM) *</label>
+                        <input type="time" id="waktu_mulai" name="waktu_mulai" value="{% if jadwal %}{{ jadwal.waktu_mulai }}{% endif %}" required>
+                        <div class="info">Format: 19:00</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="waktu_selesai">Waktu Selesai (HH:MM) *</label>
+                        <input type="time" id="waktu_selesai" name="waktu_selesai" value="{% if jadwal %}{{ jadwal.waktu_selesai }}{% endif %}" required>
+                        <div class="info">Format: 20:30</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="topik">Topik Pembahasan *</label>
+                    <input type="text" id="topik" name="topik" placeholder="Contoh: Datastream ECU Honda, Sistem Injeksi Pintar" value="{% if jadwal %}{{ jadwal.topik }}{% endif %}" required>
+                    <div class="info">Deskripsi singkat materi yang akan dipelajari</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sesi">Sesi (Opsional)</label>
+                    <input type="text" id="sesi" name="sesi" placeholder="Contoh: Sesi 1, Sesi 2, Materi Lanjutan" value="{% if jadwal %}{{ jadwal.sesi }}{% endif %}">
+                    <div class="info">Nomor atau nama sesi pembelajaran</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="keterangan">Keterangan Tambahan (Opsional)</label>
+                    <textarea id="keterangan" name="keterangan" placeholder="Catatan tambahan untuk peserta, link materi, dll..." rows="4">{% if jadwal %}{{ jadwal.keterangan }}{% endif %}</textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-submit">💾 Simpan Jadwal</button>
+                </div>
+            </form>
+
+            <div class="back">
+                <a href="/admin/jadwal">← Kembali ke Daftar Jadwal</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

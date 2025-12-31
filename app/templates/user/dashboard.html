@@ -33,6 +33,7 @@
             font-size: 28px;
             background: linear-gradient(to right, #4facfe, #00f2fe);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .user-info {
@@ -50,6 +51,7 @@
             margin-bottom: 15px;
             background: linear-gradient(to right, #ff7e5f, #feb47b);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .hero p {
@@ -169,26 +171,39 @@
 
             <div class="module">
                 <h3>🗓 Pengingat Jadwal Mingguan</h3>
-                <ul>
-                    {% for item in weekly_schedule %}
-                        <li>{{ item.day }} — {{ item.time }} — {{ item.topic }}</li>
-                    {% endfor %}
-                </ul>
+                {% if weekly_schedule %}
+                    <ul>
+                        {% for item in weekly_schedule %}
+                            <li style="margin-bottom: 10px; padding: 8px; background: rgba(79, 172, 254, 0.1); border-radius: 4px;">
+                                <strong>{{ item.day }}</strong> 
+                                <span style="color: #ff7e5f;">{{ item.time }}</span>
+                                {% if item.waktu_selesai %}- {{ item.waktu_selesai }}{% endif %}
+                                <br>
+                                <span style="font-size: 14px; color: #888;">{{ item.topic }}</span>
+                                {% if item.sesi %}<br><span style="font-size: 12px; color: #666; font-style: italic;">{{ item.sesi }}</span>{% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="color: #888;">📭 Jadwal belum tersedia. Menunggu admin membuat jadwal untuk batch Anda.</p>
+                {% endif %}
             </div>
 
             <div class="module">
-                <h3>📚 Kategori</h3>
-                <ul>
+                <h3>📚 Kategori Dokumen</h3>
+                <p style="margin-bottom: 15px; font-size: 14px;">Akses berbagai dokumen dan materi pembelajaran</p>
+                <a href="/documents" style="color: #4facfe; text-decoration: none; font-weight: bold; display: inline-block; padding: 10px 20px; background: rgba(79, 172, 254, 0.2); border-radius: 5px; transition: all 0.3s;">
+                    🔖 Lihat Semua Dokumen →
+                </a>
+                {% if categories %}
+                <ul style="margin-top: 15px;">
                     {% for cat in categories %}
-                        <li>
-                            {% if peserta.akses_workshop %}
-                                <a href="/workshop?category={{ cat }}" style="color: #fff">{{ cat }}</a>
-                            {% else %}
-                                {{ cat }}
-                            {% endif %}
+                        <li style="list-style: none; margin-bottom: 8px;">
+                            <span style="color: #4facfe;">•</span> {{ cat }}
                         </li>
                     {% endfor %}
                 </ul>
+                {% endif %}
             </div>
         </div>
 
@@ -216,13 +231,6 @@
         </div>
 
         <div class="actions">
-            {% if peserta.akses_workshop %}
-                <a href="/workshop" class="btn">📁 Akses Workshop Manual</a>
-            {% else %}
-                <div style="color: #ffb347; margin-bottom: 15px;">
-                    ⚠️ Akses Workshop Manual hanya untuk peserta premium.
-                </div>
-            {% endif %}
             <a href="/logout" class="btn btn-outline">🚪 Logout</a>
         </div>
 

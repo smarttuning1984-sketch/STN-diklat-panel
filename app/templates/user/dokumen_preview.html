@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ file.name }} - Preview Dokumen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-title {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .header-title h1 {
+            font-size: 1.8em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-title p {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 3px;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            white-space: nowrap;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .controls {
+            background: white;
+            padding: 12px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .page-info {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        a.open-drive {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        a.open-drive:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .pdf-viewer-container {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        #pdf-canvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        #drive-iframe {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ddd;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-title h1 {
+                font-size: 1.2em;
+            }
+
+            .btn-back {
+                width: 100%;
+                text-align: center;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .control-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <h1>📄 {{ file.name }}</h1>
+            <p>{{ file.mime_type or 'Document' }}</p>
+        </div>
+        <a href="/documents" class="btn-back">← Kembali</a>
+    </div>
+
+
+
+    <div class="pdf-viewer-container">
+        <div id="pdf-loader" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Memuat dokumen...</p>
+        </div>
+        <canvas id="pdf-canvas" style="display:none;"></canvas>
+        <iframe id="drive-iframe" style="display:none;"></iframe>
+    </div>
+
+    <!-- PDF.js Library from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.251/pdf.min.js"></script>
+    <script>
+        // Konfigurasi PDF.js
+        const pdfjsLib = window['pdfjsLib'] || window['pdfjs-dist/build/pdf'];
+        
+        if (!pdfjsLib) {
+            console.error('PDF.js library not found');
+            showDriveFallback('PDF.js library not loaded');
+        } else {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.251/pdf.worker.min.js';
+
+            let pdfDoc = null;
+            let pageNum = 1;
+            let userScale = 1.0;
+            const canvas = document.getElementById('pdf-canvas');
+            const ctx = canvas.getContext('2d');
+            const loader = document.getElementById('pdf-loader');
+
+            function renderPage(num) {
+                if (!pdfDoc) return;
+
+                pdfDoc.getPage(num).then(function(page) {
+                    const baseViewport = page.getViewport({ scale: 1 });
+                    const container = document.querySelector('.pdf-viewer-container');
+                    const containerWidth = container.clientWidth - 40;
+
+                    const fitScale = containerWidth / baseViewport.width;
+                    const scale = fitScale * userScale;
+                    const viewport = page.getViewport({ scale: scale });
+
+                    const outputScale = window.devicePixelRatio || 1;
+                    canvas.width = Math.floor(viewport.width * outputScale);
+                    canvas.height = Math.floor(viewport.height * outputScale);
+                    canvas.style.width = Math.floor(viewport.width) + 'px';
+                    canvas.style.height = Math.floor(viewport.height) + 'px';
+
+                    const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+                    const renderContext = {
+                        canvasContext: ctx,
+                        transform: transform,
+                        viewport: viewport
+                    };
+
+                    page.render(renderContext).promise.then(function() {
+                        document.getElementById('page_num').textContent = pageNum;
+                    }).catch(function(err) {
+                        console.error('Render error:', err);
+                    });
+                }).catch(function(err) {
+                    console.error('Get page error:', err);
+                });
+            }
+
+            // Re-render on window resize
+            let resizeTimer = null;
+            window.addEventListener('resize', function() {
+                if (resizeTimer) clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    if (pdfDoc) renderPage(pageNum);
+                }, 200);
+            });
+
+            // Load PDF dari server proxy
+            const url = `/documents/download/{{ file.id }}`;
+            pdfjsLib.getDocument(url).promise.then(function(doc) {
+                pdfDoc = doc;
+                document.getElementById('page_count').textContent = pdfDoc.numPages;
+                canvas.style.display = 'block';
+                loader.style.display = 'none';
+                renderPage(pageNum);
+            }).catch(function(err) {
+                console.error('PDF load error:', err);
+                loader.style.display = 'none';
+                showDriveFallback('Could not load PDF');
+            });
+        }
+
+        // Tombol kontrol dihapus
+
+        // Fallback ke Google Drive preview
+        function showDriveFallback(reason) {
+            console.warn('Showing Google Drive fallback:', reason);
+            document.getElementById('pdf-canvas').style.display = 'none';
+            document.getElementById('drive-iframe').style.display = 'block';
+            document.getElementById('drive-iframe').src = `https://drive.google.com/file/d/{{ file.id }}/preview`;
+            document.getElementById('pdf-loader').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

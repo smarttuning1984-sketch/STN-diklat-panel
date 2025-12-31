@@ -1,18 +1,243 @@
 <!DOCTYPE html>
-<html>
-<head><title>Login</title></head>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Diklat Otomotif STN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c 0%, #2a5298 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 50px 40px;
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .header h1 {
+            color: #1a2a6c;
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+        
+        .form-group input::placeholder {
+            color: #999;
+        }
+        
+        .alert {
+            background: #ffebee;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert:before {
+            content: "⚠️";
+            font-size: 18px;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 126, 95, 0.3);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .footer {
+            text-align: center;
+        }
+        
+        .footer p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .footer a {
+            color: #2a5298;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .footer a:hover {
+            color: #ff7e5f;
+            text-decoration: underline;
+        }
+        
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #2a5298;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #333;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 40px 25px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
 <body>
-    <h2>Login dengan WhatsApp</h2>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div style="color:red">{{ messages[0] }}</div>
-        {% endif %}
-    {% endwith %}
-    <form method="POST">
-        <input name="whatsapp" placeholder="081234567890" required><br><br>
-        <input type="password" name="password" placeholder="Password" required><br><br>
-        <button type="submit">Login</button>
-    </form>
-    <p><a href="/register">Belum punya akun? Daftar</a></p>
+    <div class="login-container">
+        <div class="header">
+            <div class="logo">🔧</div>
+            <h1>Login Peserta</h1>
+            <p>Diklat Otomotif STN</p>
+        </div>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+        
+        <div class="info-box">
+            ℹ️ Gunakan nomor WhatsApp dan password yang Anda daftarkan
+        </div>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="whatsapp">📱 Nomor WhatsApp</label>
+                <input 
+                    type="tel" 
+                    id="whatsapp"
+                    name="whatsapp" 
+                    placeholder="081234567890" 
+                    required
+                    pattern="^[0-9]{10,15}$"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password">🔐 Password</label>
+                <input 
+                    type="password" 
+                    id="password"
+                    name="password" 
+                    placeholder="Masukkan password Anda" 
+                    required
+                >
+            </div>
+            
+            <button type="submit" class="btn-login">Masuk</button>
+        </form>
+        
+        <div class="divider">atau</div>
+        
+        <div class="footer">
+            <p>Belum punya akun?</p>
+            <a href="/register">Daftar sekarang →</a>
+        </div>
+    </div>
 </body>
 </html>

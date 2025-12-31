@@ -1,8 +1,13 @@
 from flask import Flask
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def create_app():
     app = Flask(__name__)
@@ -32,5 +37,14 @@ def create_app():
 
     from .routes import main
     app.register_blueprint(main)
+    
+    # Jalankan Google Drive sync worker (optional)
+    # Uncomment untuk mengaktifkan auto-sync
+    # try:
+    #     from .tasks import start_background_sync_worker
+    #     start_background_sync_worker()
+    #     logger.info("Google Drive sync worker started")
+    # except Exception as e:
+    #     logger.warning(f"Could not start sync worker: {str(e)}")
 
     return app

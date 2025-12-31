@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Jadwal Diklat</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f7fa; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { background: #1a3a6c; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        header h1 { margin-bottom: 10px; }
+        .controls { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .btn { display: inline-block; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; cursor: pointer; border: none; transition: all 0.3s; }
+        .btn-primary { background: #2a5298; color: white; }
+        .btn-primary:hover { background: #1a3a6c; }
+        .btn-edit { background: #FF9800; color: white; }
+        .btn-danger { background: #f44336; color: white; }
+        .btn:hover { opacity: 0.9; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+        th { background: #2a5298; color: white; padding: 12px; text-align: left; font-weight: bold; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        tr:hover { background: #f9f9f9; }
+        .batch-badge { background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; }
+        .waktu-badge { background: #fff3e0; color: #f57c00; padding: 4px 8px; border-radius: 3px; font-size: 12px; }
+        .back { margin-top: 20px; }
+        .back a { background: #666; color: white; padding: 8px 15px; border-radius: 4px; display: inline-block; text-decoration: none; }
+        .empty-state { text-align: center; padding: 40px; color: #666; }
+        .day-badge { background: #4caf50; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 Kelola Jadwal Diklat</h1>
+            <p>Atur jadwal diklat untuk setiap batch</p>
+        </header>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="background: #c8e6c9; color: #2e7d32; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+                    ✅ {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="controls">
+            <h3>Total Jadwal: {{ jadwal|length }}</h3>
+            <a href="/admin/jadwal/create" class="btn btn-primary">+ Buat Jadwal Baru</a>
+        </div>
+
+        {% if jadwal %}
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Batch</th>
+                    <th>Hari</th>
+                    <th>Waktu</th>
+                    <th>Topik</th>
+                    <th>Sesi</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for j in jadwal %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><span class="batch-badge">{{ j.batch.nama }}</span></td>
+                    <td><span class="day-badge">{{ j.hari }}</span></td>
+                    <td>
+                        <span class="waktu-badge">{{ j.waktu_mulai }} - {{ j.waktu_selesai }}</span>
+                    </td>
+                    <td><strong>{{ j.topik }}</strong></td>
+                    <td>{{ j.sesi or '-' }}</td>
+                    <td style="white-space: nowrap;">
+                        <a href="/admin/jadwal/{{ j.id }}/edit" class="btn btn-edit" style="padding: 6px 12px; font-size: 12px;">Edit</a>
+                        <form method="POST" action="/admin/jadwal/{{ j.id }}/delete" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus jadwal ini?');">
+                            <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <p style="font-size: 48px; margin-bottom: 10px;">📭</p>
+            <p>Belum ada jadwal diklat. <a href="/admin/jadwal/create" style="color: #2a5298; font-weight: bold;">Buat jadwal baru</a></p>
+        </div>
+        {% endif %}
+
+        <div class="back">
+            <a href="/admin/dashboard">← Kembali ke Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

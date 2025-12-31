@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ folder_name }} - Dokumen Bengkel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-content h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .header-content p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-list {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s ease;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item:hover {
+            background: #f5f5f5;
+        }
+
+        .file-icon {
+            font-size: 2em;
+            margin-right: 15px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .file-meta {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .file-action {
+            margin-left: 10px;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .btn-group {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .file-action {
+                margin-left: 40px;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>📁 {{ folder_name }}</h1>
+                <p>Total {{ items|length }} item | {{ file_count }} file</p>
+            </div>
+            <div class="btn-group">
+                <a href="/documents" class="btn btn-back">← Kembali ke Kategori</a>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ items|length }}</div>
+                <div class="stat-label">Item</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ file_count }}</div>
+                <div class="stat-label">File</div>
+            </div>
+        </div>
+
+        {% if items %}
+            <div class="file-list">
+                {% for item in items %}
+                    <div class="file-item">
+                        <div class="file-icon">
+                            {% if item.is_directory %}
+                                📂
+                            {% else %}
+                                📄
+                            {% endif %}
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">{{ item.name }}</div>
+                            <div class="file-meta">
+                                {% if item.is_directory %}
+                                    Folder
+                                {% else %}
+                                    File
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="file-action">
+                            {% if item.is_directory %}
+                                <a href="/documents/folder/{{ item.id }}" class="btn-view">📂 Buka</a>
+                            {% else %}
+                                <a href="/documents/file/{{ item.id }}" class="btn-view">📄 Lihat</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h2>Folder Kosong</h2>
+                <p>Tidak ada file dalam folder ini</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
