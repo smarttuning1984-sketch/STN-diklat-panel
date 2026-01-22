@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Kelola Indeks Dokumen - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .nav-back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-back:hover {
+            text-decoration: underline;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .card-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e0e0e0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+            color: #333;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .label-html {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .label-json {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.8em;
+            }
+
+            td, th {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <a href="/admin/dashboard" class="nav-back">← Kembali ke Admin Dashboard</a>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>🔍 Kelola Indeks Dokumen</h1>
+            <p>Kelola dan perbarui indeks dokumen arsip bengkel untuk search engine</p>
+        </div>
+
+        <!-- Status Message -->
+        <div id="statusMessage" class="status-message"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Indexing Card -->
+            <div class="card">
+                <h3 class="card-title">📄 Jalankan Indexing</h3>
+                <p class="card-description">Scan folder arsip bengkel dan update indeks dokumen di database</p>
+                
+                <div class="info-box">
+                    <strong>Apa yang akan dilakukan:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Scan folder /arsip bengkel untuk file HTML</li>
+                        <li>Scan folder url compilation untuk file JSON</li>
+                        <li>Ekstrak metadata dan konten dokumen</li>
+                        <li>Simpan ke database untuk search</li>
+                    </ul>
+                </div>
+
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+
+                <div class="loading" id="indexingLoading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 15px; color: #666;">Sedang indexing dokumen...</p>
+                </div>
+
+                <button class="btn btn-primary" id="indexBtn" onclick="startIndexing()">
+                    🚀 Jalankan Indexing
+                </button>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="card">
+                <h3 class="card-title">📊 Statistik</h3>
+                <p class="card-description">Total dokumen yang sudah di-index</p>
+
+                <div class="stat-box">
+                    <div class="stat-number" id="totalDocs">-</div>
+                    <div class="stat-label">Total Dokumen</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.8em; font-weight: 700; color: #667eea;" id="htmlCount">-</div>
+                        <div style="font-size: 0.8em; color: #666;">File HTML</div>
+                    </div>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.8em; font-weight: 700; color: #764ba2;" id="jsonCount">-</div>
+                        <div style="font-size: 0.8em; color: #666;">File JSON</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="loadStats()">
+                    🔄 Muat Statistik
+                </button>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card">
+                <h3 class="card-title">ℹ️ Informasi</h3>
+                <p class="card-description">Detail tentang sistem indexing</p>
+
+                <div class="info-box">
+                    <strong>Path Arsip:</strong><br>
+                    /app/templates/arsip bengkel
+                    <br><br>
+                    <strong>Database:</strong><br>
+                    /database/users.db → tabel "document"
+                    <br><br>
+                    <strong>Fitur:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Full-text search</li>
+                        <li>Filter kategori & tipe</li>
+                        <li>Autocomplete suggestions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Stats Table -->
+        <div class="table-container">
+            <h2 style="margin-bottom: 20px; color: #333;">📈 Statistik Kategori</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kategori</th>
+                        <th>Jumlah Dokumen</th>
+                        <th>Tipe File</th>
+                    </tr>
+                </thead>
+                <tbody id="statsTable">
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #999;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Load statistics on page load
+        document.addEventListener('DOMContentLoaded', loadStats);
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/dokumen-categories');
+                const categories = await response.json();
+
+                let htmlCount = 0;
+                let jsonCount = 0;
+                let totalCount = 0;
+
+                let tableHtml = '';
+                categories.forEach(cat => {
+                    totalCount += cat.count;
+                    // Estimate type based on category name
+                    const isJson = cat.name.includes('JSON') || cat.name.includes('Compilation');
+                    const fileType = isJson ? 'JSON' : 'HTML';
+                    if (isJson) jsonCount += cat.count;
+                    else htmlCount += cat.count;
+
+                    tableHtml += `
+                        <tr>
+                            <td>${escapeHtml(cat.name)}</td>
+                            <td><strong>${cat.count}</strong></td>
+                            <td><span class="label label-${isJson ? 'json' : 'html'}">${fileType}</span></td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('totalDocs').textContent = totalCount;
+                document.getElementById('htmlCount').textContent = htmlCount;
+                document.getElementById('jsonCount').textContent = jsonCount;
+                document.getElementById('statsTable').innerHTML = tableHtml || '<tr><td colspan="3" style="text-align: center; color: #999;">Tidak ada data</td></tr>';
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                showMessage('Error loading statistics', 'error');
+            }
+        }
+
+        async function startIndexing() {
+            const btn = document.getElementById('indexBtn');
+            const loading = document.getElementById('indexingLoading');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+
+            btn.disabled = true;
+            loading.style.display = 'block';
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressFill.textContent = '0%';
+
+            try {
+                const response = await fetch('/api/index-dokumen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // Simulate progress
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    if (progress < 90) {
+                        progress += Math.random() * 30;
+                        if (progress > 90) progress = 90;
+                        updateProgressBar(progress);
+                    }
+                }, 300);
+
+                const data = await response.json();
+                clearInterval(progressInterval);
+
+                if (data.success) {
+                    updateProgressBar(100);
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        progressBar.style.display = 'none';
+                        showMessage(`✅ ${data.message}`, 'success');
+                        loadStats();
+                        btn.disabled = false;
+                    }, 1000);
+                } else {
+                    loading.style.display = 'none';
+                    progressBar.style.display = 'none';
+                    showMessage(`❌ ${data.error}`, 'error');
+                    btn.disabled = false;
+                }
+
+            } catch (error) {
+                console.error('Indexing error:', error);
+                loading.style.display = 'none';
+                progressBar.style.display = 'none';
+                showMessage('Error during indexing: ' + error.message, 'error');
+                btn.disabled = false;
+            }
+        }
+
+        function updateProgressBar(percent) {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = percent + '%';
+            progressFill.textContent = Math.round(percent) + '%';
+        }
+
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.style.display = 'block';
+
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

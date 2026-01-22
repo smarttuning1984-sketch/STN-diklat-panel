@@ -190,20 +190,27 @@
             </div>
 
             <div class="module">
-                <h3>📚 Kategori Dokumen</h3>
-                <p style="margin-bottom: 15px; font-size: 14px;">Akses berbagai dokumen dan materi pembelajaran</p>
-                <a href="/documents" style="color: #4facfe; text-decoration: none; font-weight: bold; display: inline-block; padding: 10px 20px; background: rgba(79, 172, 254, 0.2); border-radius: 5px; transition: all 0.3s;">
-                    🔖 Lihat Semua Dokumen →
-                </a>
+                <h3>📚 Kategori Dokumen & Arsip Bengkel</h3>
+                <p style="margin-bottom: 15px; font-size: 14px;">Akses dokumen pembelajaran, manual servis, wiring diagram, dan dokumentasi teknis</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <a href="/documents" style="color: #ff7e5f; text-decoration: none; font-weight: bold; display: inline-block; padding: 10px 20px; background: rgba(255, 126, 95, 0.2); border-radius: 5px; transition: all 0.3s;">
+                        📖 Lihat Semua Dokumen →
+                    </a>
+                    <a href="/search" style="color: #4facfe; text-decoration: none; font-weight: bold; display: inline-block; padding: 10px 20px; background: rgba(79, 172, 254, 0.2); border-radius: 5px; transition: all 0.3s;">
+                        🔍 Cari Mendalam →
+                    </a>
+                </div>
                 {% if categories %}
-                <ul style="margin-top: 15px;">
+                <p style="margin-top: 15px; font-size: 13px; color: #888;">
+                    <span style="display: block; margin-bottom: 8px; font-weight: bold;">Kategori tersedia:</span>
                     {% for cat in categories %}
-                        <li style="list-style: none; margin-bottom: 8px;">
-                            <span style="color: #4facfe;">•</span> {{ cat }}
-                        </li>
+                        <span style="display: inline-block; margin-right: 10px; margin-bottom: 5px;">{{ cat }}</span>
                     {% endfor %}
-                </ul>
+                </p>
                 {% endif %}
+                <p style="margin-top: 12px; font-size: 12px; color: #888; font-style: italic;">
+                    📦 Mencakup: BMW Service Manual • Parts Catalog • Toyota Workshop • Hyundai/KIA • Dan lainnya
+                </p>
             </div>
         </div>
 

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsip Bengkel - Diklat Otomotif STN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2a5298);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: 0.3s;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-links .logout {
+            background: #e74c3c;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+
+        .nav-links .logout:hover {
+            background: #c0392b;
+        }
+
+        .page-title {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 40px;
+        }
+
+        .search-container {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .category-card {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(79, 172, 254, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .category-card:hover {
+            background: rgba(79, 172, 254, 0.2);
+            border-color: rgba(79, 172, 254, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.2);
+        }
+
+        .category-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-icon {
+            font-size: 28px;
+        }
+
+        .category-count {
+            font-size: 12px;
+            background: rgba(79, 172, 254, 0.3);
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-top: 10px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .documents-list {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 30px;
+            display: none;
+        }
+
+        .documents-list.active {
+            display: block;
+        }
+
+        .back-btn {
+            background: rgba(79, 172, 254, 0.3);
+            border: 1px solid rgba(79, 172, 254, 0.6);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(79, 172, 254, 0.5);
+        }
+
+        .doc-item {
+            background: rgba(255,255,255,0.08);
+            border-left: 4px solid #4facfe;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .doc-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateX(5px);
+        }
+
+        .doc-item h4 {
+            color: #4facfe;
+            margin-bottom: 5px;
+        }
+
+        .doc-item p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .doc-preview {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 30px;
+            display: none;
+            margin-top: 30px;
+        }
+
+        .doc-preview.active {
+            display: block;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 15px;
+        }
+
+        .preview-header h2 {
+            color: #4facfe;
+        }
+
+        .close-preview {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-preview:hover {
+            background: #c0392b;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 700px;
+            border: none;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 28px;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+            }
+
+            .preview-iframe {
+                height: 500px;
+            }
+        }
+
+        .filter-btn {
+            background: rgba(79, 172, 254, 0.3);
+            border: 1px solid rgba(79, 172, 254, 0.6);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: rgba(79, 172, 254, 0.8);
+            border-color: #4facfe;
+        }
+
+        .filter-btn:hover {
+            background: rgba(79, 172, 254, 0.6);
+        }
+
+        .filters {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Navigation -->
+        <header>
+            <div class="logo">
+                <h1>📚 Arsip Bengkel</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard">📊 Dashboard</a>
+                <a href="/profile">👤 Profil</a>
+                <a href="/logout" class="logout">Keluar</a>
+            </div>
+        </header>
+
+        <!-- Page Title -->
+        <div class="page-title">Arsip Bengkel & Dokumentasi Teknis</div>
+        <div class="page-subtitle">
+            Koleksi lengkap manual servis, panduan reparasi, dan dokumentasi teknis otomotif
+        </div>
+
+        <!-- Search -->
+        <div class="search-container">
+            <input 
+                type="text" 
+                class="search-input" 
+                id="searchInput" 
+                placeholder="Cari dokumentasi... (contoh: BMW, Service Manual, Wiring Diagram)"
+            >
+        </div>
+
+        <!-- Main Categories View -->
+        <div id="categoriesView">
+            <div class="page-subtitle" style="color: rgba(255,255,255,0.5); margin-top: 20px; margin-bottom: 20px;">
+                Klik pada kategori untuk melihat dokumentasi lengkap
+            </div>
+
+            <div class="categories-grid">
+                <!-- BMW Documentation -->
+                <div class="category-card" onclick="showCategory('bmw')">
+                    <h3>
+                        <span class="category-icon">🏎️</span>
+                        BMW Service
+                    </h3>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 10px;">
+                        Dokumentasi lengkap service dan repair manual untuk semua seri BMW
+                    </p>
+                    <div class="category-count">14+ Dokumentasi</div>
+                </div>
+
+                <!-- Truck & Bus Manuals -->
+                <div class="category-card" onclick="showCategory('trucks')">
+                    <h3>
+                        <span class="category-icon">🚛</span>
+                        Truck & Bus Manual
+                    </h3>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 10px;">
+                        Workshop manual untuk Fuso, Hino, dan merek truck lainnya
+                    </p>
+                    <div class="category-count">8+ Dokumentasi</div>
+                </div>
+
+                <!-- Parts Catalog -->
+                <div class="category-card" onclick="showCategory('parts')">
+                    <h3>
+                        <span class="category-icon">🔩</span>
+                        Parts Catalog
+                    </h3>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 10px;">
+                        Katalog suku cadang otomotif lengkap untuk berbagai merek
+                    </p>
+                    <div class="category-count">15+ Katalog</div>
+                </div>
+
+                <!-- Repair Manuals -->
+                <div class="category-card" onclick="showCategory('repair')">
+                    <h3>
+                        <span class="category-icon">🔧</span>
+                        Repair Manuals
+                    </h3>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 10px;">
+                        Panduan reparasi transmisi, mesin, dan sistem lainnya
+                    </p>
+                    <div class="category-count">12+ Manual</div>
+                </div>
+
+                <!-- Technical Documentation -->
+                <div class="category-card" onclick="showCategory('technical')">
+                    <h3>
+                        <span class="category-icon">⚙️</span>
+                        Dokumentasi Teknis
+                    </h3>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 10px;">
+                        Diagram wiring, ECU, troubleshooting, dan spesifikasi teknis
+                    </p>
+                    <div class="category-count">20+ Dokumentasi</div>
+                </div>
+
+                <!-- DIY & Guides -->
+                <div class="category-card" onclick="showCategory('diy')">
+                    <h3>
+                        <span class="category-icon">🛠️</span>
+                        DIY Guides
+                    </h3>
+                    <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 10px;">
+                        Panduan servis mandiri dan troubleshooting praktis
+                    </p>
+                    <div class="category-count">10+ Panduan</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents List View -->
+        <div id="documentsView" class="documents-list">
+            <button class="back-btn" onclick="backToCategories()">← Kembali ke Kategori</button>
+            <h2 id="categoryTitle" style="margin-bottom: 25px;"></h2>
+            <div id="documentsList"></div>
+        </div>
+
+        <!-- Document Preview View -->
+        <div id="previewView" class="doc-preview">
+            <div class="preview-header">
+                <h2 id="previewTitle"></h2>
+                <button class="close-preview" onclick="closePreview()">× Tutup Preview</button>
+            </div>
+            <iframe id="previewFrame" class="preview-iframe"></iframe>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const categoryData = {
+            bmw: {
+                title: '🏎️ BMW Service Documentation',
+                documents: [
+                    { name: 'BMW Service Documentation & Wiring Diagram', path: 'arsip bengkel/BMW Service Documentation & Wiring Diagram/BMWServiceDocumentationWiringDiagram.html' },
+                ]
+            },
+            trucks: {
+                title: '🚛 Truck & Bus Manuals',
+                documents: [
+                    { name: 'Fuso Workshop Manuals INDONESIA', path: 'arsip bengkel/Fuso Workshop Manuals INDONESIA/FusoWorkshopManualsINDONESIA.html' },
+                    { name: 'Hino Trucks, Buses, Engines', path: 'arsip bengkel/Hino Trucks, Hino Buses, Hino Engines Workshop Manuals/HinoTrucksHinoBusesHinoEnginesWorkshopManuals.html' },
+                    { name: 'Isuzu Workshop Manuals', path: 'arsip bengkel/Isuzu C&E and LV series Workshop Manuals/IsuzuCEandLVseriesWorkshopManuals.html' },
+                    { name: 'MMC Manuals', path: 'arsip bengkel/MMC Manuals/MMCManuals.html' },
+                ]
+            },
+            parts: {
+                title: '🔩 Parts Catalog',
+                documents: [
+                    { name: 'BMW Parts Catalog', path: 'arsip bengkel/Parts Catalogs/BMW.html' },
+                    { name: 'Toyota Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Toyota.html' },
+                    { name: 'Honda Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Honda .html' },
+                    { name: 'Nissan Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Nissan.html' },
+                    { name: 'Mitsubishi Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Mitsubishi.html' },
+                    { name: 'Hyundai Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Hyundai.html' },
+                    { name: 'Kia Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Kia.html' },
+                    { name: 'Mercedes-Benz Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Mercedes-Benz.html' },
+                    { name: 'Ford Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Ford.html' },
+                    { name: 'Chevrolet Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Chevrolet .html' },
+                    { name: 'Mazda Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Mazda .html' },
+                    { name: 'Lexus Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Lexus .html' },
+                    { name: 'Isuzu Parts Catalog', path: 'arsip bengkel/Parts Catalogs/Isuzu.html' },
+                ]
+            },
+            repair: {
+                title: '🔧 Repair Manuals',
+                documents: [
+                    { name: 'Automatic Transmission Repair Manuals', path: 'arsip bengkel/Automatic Transmission Repair Manuals & Rebuild Parts/AutomaticTransmissionRepairManualsRebuildPart.html' },
+                    { name: 'DIY Car Repair Manuals', path: 'arsip bengkel/DIY Car Repair Manuals/DIYCarRepairManuals.html' },
+                ]
+            },
+            technical: {
+                title: '⚙️ Dokumentasi Teknis',
+                documents: [
+                    { name: 'ECU Pin & Wiring Diagram', path: 'arsip bengkel/ECU Pinou_ecutools.vn/ECUPinou_ecutools.vn.html' },
+                    { name: 'Fuse Box Diagram', path: 'arsip bengkel/Fuse box diagram/Fuseboxdiagram.html' },
+                    { name: 'Arsip Troubleshooting', path: 'arsip bengkel/arsip trouble shooting/arsiptroubleshooting.html' },
+                    { name: 'Tesla Service Portal', path: 'arsip bengkel/Tesla Service Portal/' },
+                    { name: 'Toyota Workshop & Wiring', path: 'arsip bengkel/Toyota Workshop & Wiring/' },
+                ]
+            },
+            diy: {
+                title: '🛠️ DIY Guides & Resources',
+                documents: [
+                    { name: 'GET the MANUALS.org', path: 'arsip bengkel/GETtheMANUALS.org/GETtheMANUALS.org.html' },
+                    { name: 'Hyundai_KIA Service', path: 'arsip bengkel/Hyundai_KIA/Hyundai_KIA.html' },
+                    { name: 'Part Catalogs', path: 'arsip bengkel/Part Catalogs/PartCatalogs.html' },
+                ]
+            }
+        };
+
+        let searchResults = [];
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            const query = e.target.value.toLowerCase();
+            if (!query) {
+                document.getElementById('categoriesView').style.display = 'block';
+                document.getElementById('documentsView').classList.remove('active');
+                document.getElementById('previewView').classList.remove('active');
+                return;
+            }
+
+            searchResults = [];
+            for (const [key, category] of Object.entries(categoryData)) {
+                const filtered = category.documents.filter(doc => 
+                    doc.name.toLowerCase().includes(query)
+                );
+                if (filtered.length > 0) {
+                    searchResults.push({
+                        category: category.title,
+                        documents: filtered
+                    });
+                }
+            }
+
+            if (searchResults.length > 0) {
+                displaySearchResults();
+            } else {
+                showEmptySearch();
+            }
+        });
+
+        function displaySearchResults() {
+            document.getElementById('categoriesView').style.display = 'none';
+            document.getElementById('documentsView').classList.add('active');
+            document.getElementById('previewView').classList.remove('active');
+            
+            document.getElementById('categoryTitle').textContent = '🔍 Hasil Pencarian';
+            let html = '';
+            
+            searchResults.forEach(group => {
+                html += `<h3 style="color: #4facfe; margin-top: 20px; margin-bottom: 15px;">${group.category}</h3>`;
+                group.documents.forEach(doc => {
+                    html += `
+                        <div class="doc-item" onclick="showPreview('${doc.path}', '${doc.name}')">
+                            <h4>📄 ${doc.name}</h4>
+                            <p>Klik untuk melihat preview lengkap</p>
+                        </div>
+                    `;
+                });
+            });
+            
+            document.getElementById('documentsList').innerHTML = html;
+        }
+
+        function showEmptySearch() {
+            document.getElementById('categoriesView').style.display = 'none';
+            document.getElementById('documentsView').classList.add('active');
+            document.getElementById('categoryTitle').textContent = '❌ Tidak Ada Hasil';
+            document.getElementById('documentsList').innerHTML = `
+                <div class="empty-state">
+                    <p>Maaf, dokumentasi yang Anda cari tidak ditemukan.</p>
+                    <p style="margin-top: 10px; font-size: 14px;">Coba gunakan kata kunci yang berbeda</p>
+                </div>
+            `;
+        }
+
+        function showCategory(categoryKey) {
+            const category = categoryData[categoryKey];
+            if (!category) return;
+
+            document.getElementById('categoriesView').style.display = 'none';
+            document.getElementById('documentsView').classList.add('active');
+            document.getElementById('previewView').classList.remove('active');
+            
+            document.getElementById('categoryTitle').textContent = category.title;
+            let html = '';
+            
+            category.documents.forEach(doc => {
+                html += `
+                    <div class="doc-item" onclick="showPreview('${doc.path}', '${doc.name}')">
+                        <h4>📄 ${doc.name}</h4>
+                        <p>Klik untuk melihat preview lengkap</p>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('documentsList').innerHTML = html;
+        }
+
+        function backToCategories() {
+            document.getElementById('categoriesView').style.display = 'block';
+            document.getElementById('documentsView').classList.remove('active');
+            document.getElementById('previewView').classList.remove('active');
+            document.getElementById('searchInput').value = '';
+        }
+
+        function showPreview(path, title) {
+            document.getElementById('categoriesView').style.display = 'none';
+            document.getElementById('documentsView').classList.remove('active');
+            document.getElementById('previewView').classList.add('active');
+            
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewFrame').src = `/arsip/${encodeURIComponent(path)}`;
+            
+            showToast('Preview dimuat...');
+        }
+
+        function closePreview() {
+            document.getElementById('previewView').classList.remove('active');
+            document.getElementById('documentsView').classList.add('active');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

@@ -225,6 +225,136 @@
             margin-top: 50px;
         }
 
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            font-weight: bold;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .search-container {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: none;
+            font-size: 1em;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .arsip-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 5px solid #667eea;
+            margin-bottom: 15px;
+        }
+
+        .arsip-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .arsip-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .arsip-card p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .arsip-preview {
+            margin-top: 40px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .arsip-preview.active {
+            display: block;
+        }
+
+        .preview-close {
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+
+        .preview-close:hover {
+            background: #6a3d8a;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 700px;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2em;
@@ -241,6 +371,18 @@
 
             .nav-links a {
                 text-align: center;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+            }
+
+            .preview-iframe {
+                height: 500px;
             }
         }
     </style>
@@ -261,20 +403,59 @@
             <a href="/dashboard/profile">Profil</a>
         </div>
 
-        <div class="categories-grid">
-            {% for key, category in categories.items() %}
-            <div class="category-card">
-                <div class="category-icon">{{ category.icon }}</div>
-                <h2>{{ category.display_name }}</h2>
-                <p>{{ category.description }}</p>
-                <div class="category-info">
-                    <a href="/documents/folder/{{ category.folder_id }}" class="btn-view">
-                        Lihat Dokumen
-                    </a>
-                    <span class="status-badge available">Tersedia</span>
+        <!-- Tabs Section -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('dokumen')">
+                📖 Dokumen Pembelajaran
+            </button>
+            <button class="tab-btn" onclick="showTab('arsip')">
+                🏎️ Arsip Bengkel Teknis
+            </button>
+        </div>
+
+        <!-- Dokumen Pembelajaran Section -->
+        <div id="dokumen" class="content-section active">
+            <div class="categories-grid">
+                {% for key, category in categories.items() %}
+                <div class="category-card">
+                    <div class="category-icon">{{ category.icon }}</div>
+                    <h2>{{ category.display_name }}</h2>
+                    <p>{{ category.description }}</p>
+                    <div class="category-info">
+                        <a href="/documents/folder/{{ category.folder_id }}" class="btn-view">
+                            Lihat Dokumen
+                        </a>
+                        <span class="status-badge available">Tersedia</span>
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+
+        <!-- Arsip Bengkel Section -->
+        <div id="arsip" class="content-section">
+            <!-- Deep Search & Unified Search Button -->
+            <div style="margin-bottom: 30px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: center;">
+                <div style="flex: 1; min-width: 300px;">
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchArsip" 
+                        placeholder="Cari dokumentasi... (contoh: BMW, Service Manual, Wiring)"
+                        style="width: 100%;"
+                    >
+                </div>
+                <a href="/search" style="display: inline-block; padding: 12px 25px; background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; text-decoration: none; border-radius: 25px; font-weight: bold; transition: all 0.3s ease; border: none; cursor: pointer;">
+                    🔍 Cari Mendalam
+                </a>
+            </div>
+
+            <div id="arsipList"></div>
+            <div id="arsipPreview" class="arsip-preview">
+                <button class="preview-close" onclick="closeArsipPreview()">← Tutup Preview</button>
+                <h2 id="previewTitle" style="color: #667eea; margin-bottom: 20px;"></h2>
+                <iframe id="previewFrame" class="preview-iframe"></iframe>
+            </div>
         </div>
 
         <div class="footer">
@@ -282,5 +463,119 @@
             <p>Hubungi admin untuk menambah atau mengubah dokumen</p>
         </div>
     </div>
-</body>
-</html>
+
+    <script>
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Initialize arsip if needed
+            if (tabName === 'arsip') {
+                initializeArsip();
+            }
+        }
+
+        // Arsip Bengkel Data - Dynamically generated list
+        const arsipData = {
+            all: {
+                title: '📚 Semua Dokumentasi Teknis',
+                docs: [
+                    { name: '🔧 Automatic Transmission Repair & Rebuild', path: 'Automatic Transmission Repair Manuals & Rebuild Parts/AutomaticTransmissionRepairManualsRebuildPart.html' },
+                    { name: '🏎️ BMW Service Documentation & Wiring Diagram', path: 'BMW Service Documentation & Wiring Diagram/BMWServiceDocumentationWiringDiagram.html' },
+                    { name: '🏎️ DIY Car Repair Manuals', path: 'DIY Car Repair Manuals/DIYCarRepairManuals.html' },
+                    { name: '⚙️ ECU Pin & Wiring (ecutools.vn)', path: 'ECU Pinou_ecutools.vn/ECUPinou_ecutools.vn.html' },
+                    { name: '⚙️ Fuse Box Diagram', path: 'Fuse box diagram/Fuseboxdiagram.html' },
+                    { name: '🚛 Fuso Workshop Manuals INDONESIA', path: 'Fuso Workshop Manuals INDONESIA/FusoWorkshopManualsINDONESIA.html' },
+                    { name: '📋 GETtheMANUALS.org', path: 'GETtheMANUALS.org/GETtheMANUALS.org.html' },
+                    { name: '🚛 Hino Trucks, Buses, Engines Workshop Manuals', path: 'Hino Trucks, Hino Buses, Hino Engines Workshop Manuals/HinoTrucksHinoBusesHinoEnginesWorkshopManuals.html' },
+                    { name: '🚙 Hyundai & KIA Workshop Manuals', path: 'Hyundai_KIA/Hyundai_KIA.html' },
+                    { name: '🚛 Isuzu C&E and LV Series Workshop Manuals', path: 'Isuzu C&E and LV series Workshop Manuals/IsuzuCEandLVseriesWorkshopManuals.html' },
+                    { name: '🔧 Mitsubishi Workshop Manuals', path: 'MMC Manuals/MMCManuals.html' },
+                    { name: '📦 Part Catalogs - General Collection', path: 'Part Catalogs/PartCatalogs.html' },
+                    { name: '🔩 BMW Parts Catalog', path: 'Parts Catalogs/BMW.html' },
+                    { name: '🔩 Chevrolet Parts Catalog', path: 'Parts Catalogs/Chevrolet .html' },
+                    { name: '🔩 Ford Parts Catalog', path: 'Parts Catalogs/Ford.html' },
+                    { name: '🔩 Honda Parts Catalog', path: 'Parts Catalogs/Honda .html' },
+                    { name: '🔩 Hyundai Parts Catalog', path: 'Parts Catalogs/Hyundai.html' },
+                    { name: '🔩 Isuzu Parts Catalog', path: 'Parts Catalogs/Isuzu.html' },
+                    { name: '🔩 KIA Parts Catalog', path: 'Parts Catalogs/Kia.html' },
+                    { name: '🔩 Lexus Parts Catalog', path: 'Parts Catalogs/Lexus .html' },
+                    { name: '🔩 Mazda Parts Catalog', path: 'Parts Catalogs/Mazda .html' },
+                    { name: '🔩 Mercedes-Benz Parts Catalog', path: 'Parts Catalogs/Mercedes-Benz.html' },
+                    { name: '🔩 Mitsubishi Parts Catalog', path: 'Parts Catalogs/Mitsubishi.html' },
+                    { name: '🔩 Nissan Parts Catalog', path: 'Parts Catalogs/Nissan.html' },
+                    { name: '🔩 Toyota Parts Catalog', path: 'Parts Catalogs/Toyota.html' },
+                    { name: '⚡ Tesla Service Portal', path: 'Tesla Service Portal/TeslaServicePortal.html' },
+                    { name: '🚙 Toyota Workshop & Wiring Diagram', path: 'Toyota Workshop & Wiring/ToyotaWorkshopWiring.html' },
+                    { name: '🔧 Troubleshooting & Problem Solving', path: 'arsip trouble shooting/arsiptroubleshooting.html' },
+                    { name: '📌 URL Compilation & Resources', path: 'url compilation/urlcompilation.html' },
+                ]
+            }
+        };
+
+        function initializeArsip() {
+            displayArsipDocuments(Object.values(arsipData).flatMap(cat => cat.docs));
+        }
+
+        function displayArsipDocuments(docs) {
+            const listContainer = document.getElementById('arsipList');
+            if (docs.length === 0) {
+                listContainer.innerHTML = '<div class="empty-state"><p>Tidak ada dokumen yang cocok</p></div>';
+                return;
+            }
+
+            let html = '';
+            docs.forEach(doc => {
+                html += `
+                    <div class="arsip-card" onclick="previewArsip('${doc.path}', '${doc.name}')">
+                        <h3>📄 ${doc.name}</h3>
+                        <p>Klik untuk membuka preview dokumentasi</p>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        function previewArsip(path, title) {
+            document.getElementById('previewTitle').textContent = title;
+            // Menggunakan route /arsip-bengkel/ yang membersihkan konten HTML
+            document.getElementById('previewFrame').src = `/arsip-bengkel/${encodeURIComponent(path)}`;
+            document.getElementById('arsipPreview').classList.add('active');
+            window.scrollTo(0, document.getElementById('arsipPreview').offsetTop - 100);
+        }
+
+        function closeArsipPreview() {
+            document.getElementById('arsipPreview').classList.remove('active');
+        }
+
+        // Search functionality
+        document.getElementById('searchArsip')?.addEventListener('keyup', function(e) {
+            const query = e.target.value.toLowerCase();
+            if (!query) {
+                initializeArsip();
+                return;
+            }
+
+            let results = [];
+            for (const category of Object.values(arsipData)) {
+                const filtered = category.docs.filter(doc => 
+                    doc.name.toLowerCase().includes(query)
+                );
+                results = results.concat(filtered);
+            }
+
+            displayArsipDocuments(results);
+        });
+    </script>

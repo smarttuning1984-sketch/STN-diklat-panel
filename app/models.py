@@ -65,3 +65,22 @@ class Jadwal(db.Model):
     keterangan = db.Column(db.Text, nullable=True)
     tanggal_dibuat = db.Column(db.DateTime, default=datetime.utcnow)
     tanggal_diubah = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Document(db.Model):
+    __tablename__ = 'document'
+    id = db.Column(db.Integer, primary_key=True)
+    nama = db.Column(db.String(255), nullable=False, index=True)
+    kategori = db.Column(db.String(100), nullable=False, index=True)
+    deskripsi = db.Column(db.Text, nullable=True)
+    filepath = db.Column(db.String(500), nullable=False, unique=True)
+    tipe_file = db.Column(db.String(50), nullable=False)  # html, json, pdf, etc
+    ukuran_kb = db.Column(db.Float, nullable=True)
+    is_arsip = db.Column(db.Boolean, default=True)  # True untuk arsip bengkel
+    is_json = db.Column(db.Boolean, default=False)  # True untuk file JSON
+    konten_search = db.Column(db.Text, nullable=True)  # Konten untuk full-text search
+    tags = db.Column(db.String(500), nullable=True)  # Comma-separated tags
+    tanggal_ditambah = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    tanggal_diupdate = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<Document {self.nama}>'

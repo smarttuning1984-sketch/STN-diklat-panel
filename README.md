@@ -25,7 +25,7 @@ cp .env.example .env
 # Edit .env dengan konfigurasi Anda
 
 # 3. Run aplikasi
-python run.py
+```python run.py
 
 # 4. Buka browser
 http://localhost:8080

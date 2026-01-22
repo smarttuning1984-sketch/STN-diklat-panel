@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parts Catalogs - Index</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .catalog-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .catalog-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .catalog-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .catalog-card p {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .catalog-card a {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .catalog-card a:hover {
+            transform: scale(1.05);
+        }
+        
+        .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔩 Parts Catalogs</h1>
+            <p>Koleksi katalog suku cadang kendaraan dari berbagai merek</p>
+        </header>
+        
+        <div class="catalog-grid">
+            <div class="catalog-card">
+                <div class="icon">🏎️</div>
+                <h3>BMW</h3>
+                <p>Katalog suku cadang BMW lengkap dengan spesifikasi dan harga</p>
+                <a href="BMW.html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚗</div>
+                <h3>Honda</h3>
+                <p>Katalog suku cadang Honda untuk berbagai tipe kendaraan</p>
+                <a href="Honda .html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚙</div>
+                <h3>Toyota</h3>
+                <p>Katalog suku cadang Toyota terlengkap dengan gambar detail</p>
+                <a href="Toyota.html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚗</div>
+                <h3>Nissan</h3>
+                <p>Katalog suku cadang Nissan untuk semua model</p>
+                <a href="Nissan.html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">⚙️</div>
+                <h3>Mitsubishi</h3>
+                <p>Katalog suku cadang Mitsubishi dengan detail teknis</p>
+                <a href="Mitsubishi.html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚗</div>
+                <h3>Chevrolet</h3>
+                <p>Katalog suku cadang Chevrolet untuk kendaraan modern</p>
+                <a href="Chevrolet .html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚗</div>
+                <h3>Ford</h3>
+                <p>Katalog suku cadang Ford lengkap dengan spesifikasi</p>
+                <a href="Ford.html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚙</div>
+                <h3>Hyundai</h3>
+                <p>Katalog suku cadang Hyundai untuk berbagai model</p>
+                <a href="Hyundai.html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚗</div>
+                <h3>KIA</h3>
+                <p>Katalog suku cadang KIA dengan harga kompetitif</p>
+                <a href="Kia.html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚗</div>
+                <h3>Mazda</h3>
+                <p>Katalog suku cadang Mazda untuk semua generasi</p>
+                <a href="Mazda .html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">💎</div>
+                <h3>Lexus</h3>
+                <p>Katalog suku cadang Lexus premium</p>
+                <a href="Lexus .html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚗</div>
+                <h3>Mercedes-Benz</h3>
+                <p>Katalog suku cadang Mercedes-Benz mewah</p>
+                <a href="Mercedes-Benz.html">Buka Katalog</a>
+            </div>
+            
+            <div class="catalog-card">
+                <div class="icon">🚛</div>
+                <h3>Isuzu</h3>
+                <p>Katalog suku cadang Isuzu untuk truk dan komersial</p>
+                <a href="Isuzu.html">Buka Katalog</a>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 Parts Catalogs Database - STN Diklat Panel</p>
+            <p>Hubungi admin untuk update katalog terbaru</p>
+        </footer>
+    </div>
+</body>
+</html>

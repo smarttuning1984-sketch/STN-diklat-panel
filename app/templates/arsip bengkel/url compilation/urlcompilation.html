@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Compilation & Resources</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .resource-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .resource-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .resource-card p {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .resource-card a {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            word-break: break-all;
+            font-size: 0.85em;
+        }
+        
+        .resource-card a:hover {
+            transform: scale(1.05);
+        }
+        
+        .icon {
+            font-size: 2em;
+        }
+        
+        .info-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: #333;
+        }
+        
+        .info-box h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .info-box ul {
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .info-box li {
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📌 URL Compilation & Resources</h1>
+            <p>Koleksi lengkap tools, resources, dan website referensi otomotif</p>
+        </header>
+        
+        <div class="info-box">
+            <h2>📚 Apa yang Ada di Sini?</h2>
+            <p>Halaman ini berisi kompilasi URL dan resource penting untuk:</p>
+            <ul>
+                <li>🔌 ECU Pin dan Wiring Diagram Tools</li>
+                <li>🚗 Auto Explain dan Vehicle Database</li>
+                <li>🛠️ Diagnostic Tools dan Software</li>
+                <li>📖 Documentation dan Manuals Online</li>
+                <li>💾 Database dan Resources Collection</li>
+            </ul>
+        </div>
+        
+        <div class="resource-grid">
+            <div class="resource-card">
+                <h3><span class="icon">🔌</span> ECU Pin Database</h3>
+                <p>Database lengkap ECU pinout dan wiring diagram untuk berbagai kendaraan dari xtuning.vn</p>
+                <p><strong>Berisi:</strong> ECU pin configurations, wiring schemas, dan troubleshooting guides</p>
+                <p style="font-size: 0.85em; color: #999;">Database tersimpan: EcuPin.xtuning.vn..json</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3><span class="icon">🚗</span> Auto Explain</h3>
+                <p>Platform penjelasan otomatis untuk diagnosis dan perbaikan kendaraan modern</p>
+                <p><strong>Fitur:</strong> Real-time diagnostics, troubleshooting guides, dan technical explanations</p>
+                <p style="font-size: 0.85em; color: #999;">Database tersimpan: autoexplain.json</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3><span class="icon">📖</span> Documentation Sources</h3>
+                <p>Sumber dokumentasi resmi dari berbagai OEM dan distributor</p>
+                <p><strong>Akses ke:</strong> Service manuals, wiring diagrams, dan technical bulletins</p>
+                <p style="font-size: 0.85em; color: #999;">Silakan tanyakan admin untuk update links terbaru</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3><span class="icon">🛠️</span> Diagnostic Tools</h3>
+                <p>Tools dan software untuk diagnostic kendaraan elektronik modern</p>
+                <p><strong>Termasuk:</strong> Software links, tools recommendations, dan setup guides</p>
+                <p style="font-size: 0.85em; color: #999;">Hubungi admin untuk akses ke tools berbayar</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3><span class="icon">💾</span> Database Resources</h3>
+                <p>Koleksi database online untuk referensi teknis otomotif</p>
+                <p><strong>Mencakup:</strong> Parts specifications, cross-references, dan compatibility charts</p>
+                <p style="font-size: 0.85em; color: #999;">Updated secara berkala dengan informasi terbaru</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3><span class="icon">🔍</span> Additional Resources</h3>
+                <p>Resource tambahan untuk pembelajaran dan pengembangan skill</p>
+                <p><strong>Format:</strong> Video tutorials, online courses, dan webinar recordings</p>
+                <p style="font-size: 0.85em; color: #999;">Akses gratis untuk semua peserta diklat</p>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h2>💡 Tips Menggunakan Kompilasi Ini</h2>
+            <ul>
+                <li>Bookmark halaman ini untuk akses cepat ke resources penting</li>
+                <li>Gunakan ECU Pin database untuk diagnosis ECU problems</li>
+                <li>Manfaatkan Auto Explain untuk troubleshooting cepat</li>
+                <li>Hubungi admin jika menemukan resource yang tidak berfungsi</li>
+                <li>Share findings dengan sesama teknisi untuk kolaborasi lebih baik</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>© 2025 URL Compilation - STN Diklat Panel</p>
+            <p>Last Updated: January 2025 | Hubungi admin untuk update resources</p>
+        </footer>
+    </div>
+</body>
+</html>

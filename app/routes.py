@@ -3,10 +3,13 @@ import json
 import sqlite3
 import requests
 import csv
+import re
 from io import StringIO
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, Response, stream_with_context
-from .models import db, Peserta, Batch, Admin, Jadwal
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, Response, stream_with_context, jsonify
+from .models import db, Peserta, Batch, Admin, Jadwal, Document
+from .search_indexer import DocumentIndexer, DocumentSearcher
+from .unified_search import UnifiedSearchEngine, DeepIndexer
 from werkzeug.utils import secure_filename
 from flask import current_app
 import time
@@ -31,6 +34,24 @@ DOKUMEN_CATEGORIES = {
     "1CHz8UWZXfJtXlcjp9-FPAo-t_KkfTztW": {"name": "🔧 Service Manual 1", "display": "Service Manual 1"},
     "1_SsZ7SkaZxvXUZ6RUAA_o7WR_GAtgEwT": {"name": "⚙️ Service Manual 2", "display": "Service Manual 2"}
 }
+
+def clean_html_content(html_content):
+    """Bersihkan HTML dari meta tag redirect dan encoding berbahaya"""
+    # Hapus meta http-equiv yang menyebabkan redirect/refresh
+    html_content = re.sub(
+        r'<meta\s+http-equiv\s*=\s*["\']?(?:refresh|content-type)["\']?[^>]*>',
+        '',
+        html_content,
+        flags=re.IGNORECASE
+    )
+    # Hapus script tag yang mungkin menyebabkan redirect
+    html_content = re.sub(
+        r'<script\s+(?:async\s+|defer\s+)?src\s*=\s*["\']https?://[^"\']*["\'][^>]*></script>',
+        '',
+        html_content,
+        flags=re.IGNORECASE
+    )
+    return html_content
 
 # === LANDING PAGE ===
 @main.route('/')
@@ -278,7 +299,104 @@ def view_dokumen_folder(folder_id):
 
 
 # === PREVIEW/DOWNLOAD DOKUMEN ===
-@main.route('/documents/file/<file_id>')
+@main.route('/arsip-bengkel/<path:file_path>')
+def view_arsip_bengkel(file_path):
+    """Melayani file HTML dari arsip bengkel dengan konten yang dibersihkan"""
+    if 'user_id' not in session:
+        return redirect('/login')
+    
+    # Validasi path untuk mencegah directory traversal
+    if '..' in file_path or file_path.startswith('/'):
+        return "Invalid file path", 400
+    
+    # Folder arsip bengkel
+    arsip_dir = os.path.join(os.path.dirname(__file__), 'templates', 'arsip bengkel')
+    full_path = os.path.abspath(os.path.join(arsip_dir, file_path))
+    
+    # Pastikan file berada dalam direktori arsip bengkel
+    if not full_path.startswith(arsip_dir):
+        return "Access denied", 403
+    
+    # Cek file exists dan merupakan HTML
+    if not os.path.exists(full_path) or not full_path.endswith('.html'):
+        flash('File tidak ditemukan')
+        return redirect('/documents')
+    
+    try:
+        with open(full_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        
+        # Bersihkan konten HTML
+        html_content = clean_html_content(html_content)
+        
+        # Rewrite relative paths untuk images dan resources
+        import re
+        import urllib.parse
+        
+        # Get the directory of the current file
+        file_dir = os.path.dirname(file_path)
+        
+        # Pattern untuk src="..." atau src='...'
+        def rewrite_src(match):
+            quote_char = match.group(1)  # " atau '
+            original_src = match.group(2)
+            # Skip absolute URLs dan data URIs
+            if original_src.startswith('http') or original_src.startswith('data:'):
+                return match.group(0)
+            # Skip /arsip-bengkel-image/ paths yang sudah di-rewrite
+            if original_src.startswith('/arsip-bengkel-image/'):
+                return match.group(0)
+            
+            # Join dengan file directory
+            if file_dir:
+                new_path = os.path.normpath(os.path.join(file_dir, original_src))
+            else:
+                new_path = original_src
+            
+            # Return rewritten src dengan quote character yang sesuai
+            encoded_path = urllib.parse.quote(new_path.replace(os.sep, "/"))
+            return f'src={quote_char}/arsip-bengkel-image/{encoded_path}{quote_char}'
+        
+        # Match src="..." atau src='...'
+        html_content = re.sub(r'src=(["\'])([^"\']*)\1', rewrite_src, html_content)
+        
+        return Response(html_content, mimetype='text/html; charset=utf-8')
+    except Exception as e:
+        flash(f'Error membaca file: {str(e)}')
+        return redirect('/documents')
+
+
+# Route untuk serve image files dari arsip bengkel
+@main.route('/arsip-bengkel-image/<path:file_path>')
+def serve_arsip_bengkel_image(file_path):
+    """Melayani image files dari arsip bengkel"""
+    if 'user_id' not in session:
+        return redirect('/login')
+    
+    # Validasi path
+    if '..' in file_path or file_path.startswith('/'):
+        return "Invalid file path", 400
+    
+    # Folder arsip bengkel
+    arsip_dir = os.path.join(os.path.dirname(__file__), 'templates', 'arsip bengkel')
+    full_path = os.path.abspath(os.path.join(arsip_dir, file_path))
+    
+    # Pastikan file berada dalam direktori arsip bengkel
+    if not full_path.startswith(arsip_dir):
+        return "Access denied", 403
+    
+    # Cek file exists
+    if not os.path.exists(full_path):
+        return "File tidak ditemukan", 404
+    
+    # Serve image file
+    try:
+        from flask import send_file
+        return send_file(full_path)
+    except Exception as e:
+        return f"Error: {str(e)}", 500
+
+
 def view_dokumen_file(file_id):
     if 'user_id' not in session:
         return redirect('/login')
@@ -399,6 +517,17 @@ def admin_dashboard():
                           total_peserta=total_peserta,
                           belum_bayar=belum_bayar,
                           batches=batches)
+
+
+# === ADMIN: KELOLA INDEKS DOKUMEN ===
+@main.route('/admin/kelola-indeks')
+def admin_kelola_indeks():
+    """Halaman untuk mengelola indeks dokumen"""
+    if not session.get('admin'):
+        return redirect('/admin')
+    
+    return render_template('admin/kelola_indeks.html')
+
 
 # === ADMIN: KELOLA PESERTA ===
 @main.route('/admin/peserta')
@@ -789,3 +918,377 @@ def admin_jadwal_delete(id):
     
     flash('Jadwal berhasil dihapus!')
     return redirect('/admin/jadwal')
+
+
+# === ARSIP BENGKEL (Workshop Archive) ===
+@main.route('/arsip_bengkel')
+def arsip_bengkel():
+    """Redirect ke halaman documents dengan tab arsip bengkel"""
+    if 'user_id' not in session:
+        return redirect('/login')
+    
+    return redirect('/documents')
+
+
+@main.route('/arsip/<path:filepath>')
+def serve_arsip(filepath):
+    """Melayani file dari folder arsip bengkel"""
+    if 'user_id' not in session:
+        return redirect('/login')
+    
+    try:
+        # Decode URL-encoded path
+        import urllib.parse
+        decoded_path = urllib.parse.unquote(filepath)
+        
+        # Construct full path - from app directory to templates/arsip bengkel
+        arsip_base = os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            'templates',
+            'arsip bengkel'
+        ))
+        
+        full_path = os.path.normpath(os.path.join(arsip_base, decoded_path))
+        
+        # Security check - ensure path is within arsip directory
+        if not full_path.startswith(arsip_base):
+            return "Akses ditolak", 403
+        
+        # Check if file exists
+        if not os.path.exists(full_path):
+            return "File tidak ditemukan", 404
+        
+        # Serve HTML files with image path rewriting
+        if full_path.endswith('.html'):
+            with open(full_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Get the directory of the current file
+            file_dir = os.path.dirname(decoded_path)
+            
+            # Rewrite relative image paths to use /arsip/ endpoint
+            # This handles cases like ./images/... or images/...
+            import re
+            
+            # Pattern for src="..." or src='...' attributes
+            def rewrite_src(match):
+                quote_char = match.group(1)  # " atau '
+                original_src = match.group(2)
+                # Skip absolute URLs and data URIs
+                if original_src.startswith('http') or original_src.startswith('data:'):
+                    return match.group(0)
+                # Skip /arsip/ paths that are already rewritten
+                if original_src.startswith('/arsip/'):
+                    return match.group(0)
+                
+                # Join with file directory
+                if file_dir:
+                    new_path = os.path.normpath(os.path.join(file_dir, original_src))
+                else:
+                    new_path = original_src
+                
+                # Return rewritten src with proper quote character
+                encoded_path = urllib.parse.quote(new_path.replace(os.sep, "/"))
+                return f'src={quote_char}/arsip/{encoded_path}{quote_char}'
+            
+            # Match src="..." or src='...'
+            content = re.sub(r'src=(["\'])([^"\']*)\1', rewrite_src, content)
+            return content
+        
+        # Serve image files
+        elif full_path.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+            from flask import send_file
+            return send_file(full_path)
+        
+        # Serve other files
+        else:
+            from flask import send_file
+            return send_file(full_path)
+    
+    except Exception as e:
+        return f"Error: {str(e)}", 500
+
+
+# === SEARCH DOKUMEN BENGKEL ===
+@main.route('/api/search-dokumen', methods=['GET'])
+def api_search_dokumen():
+    """API endpoint untuk search dokumen"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    query = request.args.get('q', '').strip()
+    kategori = request.args.get('kategori', 'Semua')
+    tipe_file = request.args.get('tipe', None)
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 20, type=int)
+    
+    if not query and kategori == 'Semua':
+        return jsonify({'error': 'Masukkan kata kunci pencarian'}), 400
+    
+    # Perform search
+    results = DocumentSearcher.search(query, kategori, tipe_file, limit * page)
+    
+    # Paginate results
+    start = (page - 1) * limit
+    paginated = results[start:start + limit]
+    
+    # Format response
+    docs = []
+    for doc in paginated:
+        docs.append({
+            'id': doc.id,
+            'nama': doc.nama,
+            'kategori': doc.kategori,
+            'deskripsi': doc.deskripsi,
+            'filepath': doc.filepath,
+            'tipe_file': doc.tipe_file,
+            'ukuran_kb': round(doc.ukuran_kb, 2) if doc.ukuran_kb else 0,
+            'tanggal_ditambah': doc.tanggal_ditambah.strftime('%d-%m-%Y')
+        })
+    
+    return jsonify({
+        'success': True,
+        'total': len(results),
+        'page': page,
+        'limit': limit,
+        'results': docs
+    })
+
+
+@main.route('/search-dokumen')
+def search_dokumen():
+    """Halaman search dokumen"""
+    if 'user_id' not in session:
+        return redirect('/login')
+    
+    peserta = Peserta.query.get(session['user_id'])
+    categories = DocumentSearcher.get_all_categories()
+    stats = DocumentSearcher.get_category_stats()
+    
+    return render_template(
+        'user/search_dokumen.html',
+        peserta=peserta,
+        categories=categories,
+        stats=stats
+    )
+
+
+@main.route('/api/dokumen/<int:doc_id>')
+def api_dokumen_detail(doc_id):
+    """API untuk detail dokumen"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    doc = Document.query.get(doc_id)
+    if not doc:
+        return jsonify({'error': 'Dokumen tidak ditemukan'}), 404
+    
+    return jsonify({
+        'id': doc.id,
+        'nama': doc.nama,
+        'kategori': doc.kategori,
+        'deskripsi': doc.deskripsi,
+        'filepath': doc.filepath,
+        'tipe_file': doc.tipe_file,
+        'ukuran_kb': round(doc.ukuran_kb, 2) if doc.ukuran_kb else 0,
+        'tanggal_ditambah': doc.tanggal_ditambah.strftime('%d-%m-%Y %H:%M')
+    })
+
+
+@main.route('/api/search-suggestions')
+def api_search_suggestions():
+    """API untuk autocomplete suggestions"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    partial = request.args.get('q', '').strip()
+    
+    if not partial or len(partial) < 2:
+        return jsonify([])
+    
+    suggestions = DocumentSearcher.suggest_keywords(partial, limit=10)
+    return jsonify(suggestions)
+
+
+@main.route('/api/dokumen-categories')
+def api_dokumen_categories():
+    """API untuk daftar kategori"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    categories = DocumentSearcher.get_all_categories()
+    stats = DocumentSearcher.get_category_stats()
+    
+    result = []
+    for cat in categories:
+        result.append({
+            'name': cat,
+            'count': stats.get(cat, 0)
+        })
+    
+    return jsonify(result)
+
+
+@main.route('/api/index-dokumen', methods=['POST'])
+def api_index_dokumen():
+    """API untuk menjalankan indexing (hanya untuk admin)"""
+    # Simple auth check - dalam production gunakan role check yang lebih ketat
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    peserta = Peserta.query.get(session['user_id'])
+    admin = Admin.query.filter_by(username=session.get('admin_username')).first()
+    
+    # Untuk testing, allow any user. Dalam production, ganti dengan proper admin check
+    
+    try:
+        indexer = DocumentIndexer()
+        
+        # Clear existing index
+        indexer.clear_index()
+        
+        # Index arsip files
+        html_count = indexer.index_arsip_bengkel()
+        
+        # Index JSON files
+        json_count = indexer.index_json_files()
+        
+        total = html_count + json_count
+        
+        return jsonify({
+            'success': True,
+            'message': f'Indexing selesai: {html_count} HTML + {json_count} JSON = {total} dokumen',
+            'total': total
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# === UNIFIED SEARCH API (Dokumen Pembelajaran + Arsip Bengkel) ===
+@main.route('/api/unified-search', methods=['GET'])
+def api_unified_search():
+    """
+    Unified search API - mencari di Dokumen Pembelajaran dan Arsip Bengkel
+    
+    Query params:
+    - q: search query (required)
+    - type: 'all', 'arsip', 'learning' (default: 'all')
+    - limit: jumlah hasil (default: 50)
+    - page: page number (default: 1)
+    """
+    query = request.args.get('q', '').strip()
+    search_type = request.args.get('type', 'all')
+    limit = int(request.args.get('limit', 50))
+    page = int(request.args.get('page', 1))
+    
+    if not query:
+        return jsonify({'error': 'Query parameter required'}), 400
+    
+    offset = (page - 1) * limit
+    
+    result = UnifiedSearchEngine.deep_search(query, search_type, limit, offset)
+    
+    # Add pagination info
+    result['page'] = page
+    result['limit'] = limit
+    result['total_pages'] = (result['total'] + limit - 1) // limit
+    
+    return jsonify(result)
+
+
+@main.route('/api/unified-search/suggestions', methods=['GET'])
+def api_unified_search_suggestions():
+    """Autocomplete suggestions untuk unified search"""
+    partial = request.args.get('q', '').strip()
+    limit = int(request.args.get('limit', 15))
+    
+    suggestions = UnifiedSearchEngine.get_search_suggestions(partial, limit)
+    
+    return jsonify({'suggestions': suggestions})
+
+
+@main.route('/api/unified-search/category/<category>', methods=['GET'])
+def api_unified_search_by_category(category):
+    """Search dokumen berdasarkan kategori spesifik"""
+    limit = int(request.args.get('limit', 50))
+    page = int(request.args.get('page', 1))
+    offset = (page - 1) * limit
+    
+    result = UnifiedSearchEngine.deep_search_by_category(category, limit, offset)
+    result['page'] = page
+    result['limit'] = limit
+    
+    return jsonify(result)
+
+
+@main.route('/api/unified-search/categories', methods=['GET'])
+def api_unified_search_categories():
+    """Get semua kategori yang tersedia"""
+    categories = UnifiedSearchEngine.get_all_categories()
+    stats = UnifiedSearchEngine.get_statistics()
+    
+    return jsonify({
+        'categories': categories,
+        'statistics': stats
+    })
+
+
+@main.route('/api/unified-search/advanced', methods=['POST'])
+def api_unified_search_advanced():
+    """
+    Advanced search dengan multiple filters
+    
+    Body JSON:
+    {
+        'query': 'search text',
+        'kategori': 'kategori' atau ['cat1', 'cat2'],
+        'tipe_file': 'html' atau ['html', 'json'],
+        'is_arsip': true/false,
+        'date_from': 'YYYY-MM-DD',
+        'date_to': 'YYYY-MM-DD'
+    }
+    """
+    data = request.get_json()
+    query = data.get('query', '').strip()
+    
+    filters = {
+        'kategori': data.get('kategori'),
+        'tipe_file': data.get('tipe_file'),
+        'is_arsip': data.get('is_arsip'),
+        'date_from': data.get('date_from'),
+        'date_to': data.get('date_to')
+    }
+    
+    results = UnifiedSearchEngine.search_with_filters(query, filters)
+    
+    return jsonify({
+        'query': query,
+        'total': len(results),
+        'results': results
+    })
+
+
+# === UNIFIED SEARCH PAGE ===
+@main.route('/search')
+def search():
+    """Halaman unified search untuk Dokumen Pembelajaran dan Arsip Bengkel"""
+    if 'user_id' not in session:
+        return redirect('/login')
+    
+    # Get search query dari params
+    query = request.args.get('q', '')
+    search_type = request.args.get('type', 'all')
+    
+    # Get categories untuk filter
+    categories = UnifiedSearchEngine.get_all_categories()
+    statistics = UnifiedSearchEngine.get_statistics()
+    
+    return render_template('user/unified_search.html',
+                         query=query,
+                         search_type=search_type,
+                         categories=categories,
+                         statistics=statistics)
